@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Divider, List, ListItem, ListItemText } from "@mui/material";
 import { Link } from "react-router-dom";
-
+import { API_BASE_URL } from "../../config";
 import "./styles.css";
 
 function UserList() {
@@ -11,7 +11,7 @@ function UserList() {
     async function fetchUsers() {
       try {
         const response = await fetch(
-          "https://3c7cpk-8081.csb.app/api/user/list",
+          `${API_BASE_URL}/api/user/list`,
           {
             method: "GET",
             credentials: "include",

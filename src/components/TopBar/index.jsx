@@ -1,13 +1,13 @@
 import React from "react";
 import { AppBar, Toolbar, Typography } from "@mui/material";
-
+import { API_BASE_URL } from "../../config";
 import "./styles.css";
 
-function TopBar({ user, onLogout }) {
+function TopBar({ user, onLogout, onPhotoUpload }) {
   //logout
   const handleLogout = async () => {
     try {
-      await fetch("https://3c7cpk-8081.csb.app/api/user/admin/logout", {
+      await fetch(`${API_BASE_URL}/api/user/admin/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -29,7 +29,7 @@ function TopBar({ user, onLogout }) {
     formData.append("photo", file);
     try {
       const response = await fetch(
-        "https://3c7cpk-8081.csb.app/api/photo/photos/new",
+        `${API_BASE_URL}/api/photo/photos/new`,
         {
           method: "POST",
           credentials: "include",
@@ -43,6 +43,10 @@ function TopBar({ user, onLogout }) {
         throw new Error("upload failed");
       }
       alert("Successfully uploaded");
+      // Call the callback to refresh photos
+      if (onPhotoUpload) {
+        onPhotoUpload();
+      }
     } catch (error) {
       console.log(error);
       alert("Error uploading file");
@@ -60,7 +64,7 @@ function TopBar({ user, onLogout }) {
         }}
       >
         <Typography variant="h5" color="inherit">
-          Phạm Xuân Quý - B22DCAT240
+          Trần Quang Anh - B22DCCN044
         </Typography>
 
         <div className="topbar-right">

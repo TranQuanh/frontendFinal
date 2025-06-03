@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Divider, TextField, Button } from "@mui/material";
 import { useParams } from "react-router-dom";
+import { API_BASE_URL } from "../../config";
 import "./styles.css";
 
 function UserPhotos() {
@@ -12,7 +13,7 @@ function UserPhotos() {
     async function fetchPhotos() {
       try {
         const response = await fetch(
-          `https://3c7cpk-8081.csb.app/api/photo/photosOfUser/${userId}`,
+          `${API_BASE_URL}/api/photo/photosOfUser/${userId}`,
           {
             method: "GET",
             credentials: "include",
@@ -43,7 +44,7 @@ function UserPhotos() {
     const comment = commentInput[photoId]?.trim();
     try {
       const response = await fetch(
-        `http://localhost:8081/api/photo/commentsOfPhoto/${photoId}`,
+        `${API_BASE_URL}/api/photo/commentsOfPhoto/${photoId}`,
         {
           method: "POST",
           headers: {
@@ -58,7 +59,7 @@ function UserPhotos() {
         throw new Error(errText || "Failed to add comment.");
       }
       const updatedPhotos = await fetch(
-        `http://localhost:8081/api/photo/photosOfUser/${userId}`,
+        `${API_BASE_URL}/api/photo/photosOfUser/${userId}`,
         {
           credentials: "include",
         }
@@ -75,7 +76,7 @@ function UserPhotos() {
       {photos.map((photo) => (
         <div key={photo._id} className="photo-block">
           <img
-            src={`http://localhost:8081/images/${photo.file_name}`}
+            src={`${API_BASE_URL}/images/${photo.file_name}`}
             alt="user"
             style={{ width: "100%", maxWidth: "400px" }}
           />

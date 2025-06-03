@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { API_BASE_URL } from "../../config";
 import "./styles.css";
 
 /**
@@ -10,7 +11,7 @@ function UserDetail() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    fetch(`https://3c7cpk-8081.csb.app/api/user/${userId}`, {
+    fetch(`${API_BASE_URL}/api/user/${userId}`, {
       method: "GET",
       credentials: "include",
     })

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE_URL } from "../../config";
 import "./styles.css";
 
 function LoginRegister({ onLoginSuccess }) {
@@ -26,7 +27,7 @@ function LoginRegister({ onLoginSuccess }) {
 
     try {
       const response = await fetch(
-        "https://3c7cpk-8081.csb.app/api/user/admin/login",
+        `${API_BASE_URL}/api/user/admin/login`,
         {
           method: "POST",
           headers: {
@@ -76,7 +77,7 @@ function LoginRegister({ onLoginSuccess }) {
     }
     try {
       const response = await fetch(
-        "https://3c7cpk-8081.csb.app/api/user/register",
+        `${API_BASE_URL}/api/user/register`,
         {
           method: "POST",
           headers: {

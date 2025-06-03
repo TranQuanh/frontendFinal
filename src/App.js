@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Grid, Paper } from "@mui/material";
 import {
     BrowserRouter as Router,
@@ -18,6 +18,7 @@ import RequireLogin from "./components/RequireLogin";
 
 const AppContent = () => {
     const [currentUser, setCurrentUser] = useState(null);
+    const [photoRefreshKey, setPhotoRefreshKey] = useState(0);
     const navigate = useNavigate();
 
     const handleLoginSuccess = (user) => {
@@ -30,11 +31,19 @@ const AppContent = () => {
         navigate("/login");
     };
 
+    const handlePhotoUpload = useCallback(() => {
+        setPhotoRefreshKey(prev => prev + 1);
+    }, []);
+
     return (
         <>
             <Grid container spacing={2}>
                 <Grid item xs={12}>
-                    <TopBar user={currentUser} onLogout={handleLogout} />
+                    <TopBar 
+                        user={currentUser} 
+                        onLogout={handleLogout}
+                        onPhotoUpload={handlePhotoUpload}
+                    />
                 </Grid>
             </Grid>
 
@@ -87,7 +96,7 @@ const AppContent = () => {
                                 </Grid>
                                 <Grid item sm={9}>
                                     <Paper className="main-grid-item">
-                                        <UserPhotos />
+                                        <UserPhotos key={photoRefreshKey} />
                                     </Paper>
                                 </Grid>
                             </Grid>
