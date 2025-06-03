@@ -1,0 +1,151 @@
+/* Remove default margins and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    min-height: 100vh;
+}
+
+.login-register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-box h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    color: #333;
+    font-weight: bold;
+}
+
+.form-group {
+    margin-bottom: 0;
+}
+
+/* Individual form field styling */
+.form-field {
+    margin-bottom: 20px;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.form-field input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.form-field input:focus {
+    outline: none;
+    border-color: #4472C4;
+    background-color: white;
+    box-shadow: 0 0 0 2px rgba(68, 114, 196, 0.1);
+}
+
+/* Button group styling */
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.login-box button {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.login-box button[type="submit"] {
+    background-color: #4472C4;
+    color: white;
+}
+
+.login-box button[type="submit"]:hover {
+    background-color: #365899;
+    transform: translateY(-1px);
+}
+
+.login-box button[type="button"] {
+    background-color: #6c757d;
+    color: white;
+}
+
+.login-box button[type="button"]:hover {
+    background-color: #545862;
+    transform: translateY(-1px);
+}
+
+/* Error message styling */
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 4px;
+    margin-top: 20px;
+    text-align: center;
+    border: 1px solid #f5c6cb;
+}
+
+/* Register form specific styles */
+.register-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.register-fields .form-field.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .login-box {
+        padding: 30px 20px;
+        margin: 10px;
+    }
+
+    .register-fields {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

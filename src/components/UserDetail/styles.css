@@ -1,0 +1,15 @@
+.photo-link-button {
+    display: inline-block;
+    background-color: #1976d2;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.photo-link-button:hover {
+    background-color: #1565c0;
+}
