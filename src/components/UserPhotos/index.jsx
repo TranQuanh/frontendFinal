@@ -11,7 +11,7 @@ import { API_BASE_URL } from "../../config";
 function UserPhotos({ photoUpdateTrigger }) {
   const { userId } = useParams();
   const [photos, setPhotos] = useState([]);
-  const [comment, setComment] = useState("");
+  const [photoComments, setPhotoComments] = useState({}); // Lưu comment cho từng ảnh: { photoId: commentText }
 
   const fetchPhotos = async () => {
     try {
@@ -36,7 +36,18 @@ function UserPhotos({ photoUpdateTrigger }) {
     }
   }, [userId, photoUpdateTrigger]);
 
-  const handleAddComment = async (photoId, comment) => {
+  // Cập nhật comment cho một ảnh cụ thể
+  const handleCommentChange = (photoId, newComment) => {
+    setPhotoComments((prev) => ({
+      ...prev,
+      [photoId]: newComment,
+    }));
+  };
+
+  const handleAddComment = async (photoId) => {
+    const commentText = photoComments[photoId];
+    if (!commentText || !commentText.trim()) return;
+
     try {
       const response = await fetch(
         `${API_BASE_URL}/api/photo/commentOfPhoto/${photoId}`,
@@ -46,22 +57,18 @@ function UserPhotos({ photoUpdateTrigger }) {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({ comment }),
+          body: JSON.stringify({ comment: commentText }),
         }
       );
 
       if (response.ok) {
-        // Refresh photos after adding comment
-        const updatedResponse = await fetch(
-          `${API_BASE_URL}/api/photo/photoOfUser/${userId}`,
-          {
-            credentials: "include",
-          }
-        );
-        if (updatedResponse.ok) {
-          const updatedPhotos = await updatedResponse.json();
-          setPhotos(updatedPhotos);
-        }
+        // Xóa comment đã nhập của ảnh đó
+        setPhotoComments((prev) => ({
+          ...prev,
+          [photoId]: "",
+        }));
+        // Refresh lại danh sách ảnh
+        await fetchPhotos();
       }
     } catch (error) {
       console.error("Error adding comment:", error);
@@ -76,55 +83,58 @@ function UserPhotos({ photoUpdateTrigger }) {
             photos.map((photo) => (
               <div key={photo._id} className="photo-item">
                 <div className="photo-image">
-                  <img
-                    src={`${API_BASE_URL}/images/${photo.file_name}`}
-                    alt={photo.file_name}
-                    style={{ width: "100%", maxWidth: "400px" }}
-                  />
+                  <div className="image-space">
+                    <img
+                      src={`${API_BASE_URL}/images/${photo.file_name}`}
+                      alt={photo.file_name}
+                      style={{ width: "100%", maxWidth: "400px" }}
+                    />
+                  </div>
                 </div>
                 <div className="photo-date">
                   {new Date(photo.date_time).toLocaleString()}
                 </div>
                 <div className="comment-space">
                   <div className="comment-headline">Comments:</div>
-                  <div className="comment-input">
-                    <label>Your comment:</label>
-                    <input
-                      type="text"
-                      name="comment"
-                      placeholder="Add a comment..."
-                      className="form-field full-width"
-                    />
-                    <button
-                      className="btn comment-button"
-                      onClick={(e) =>
-                        handleAddComment(photo._id, e.target.value)
-                      }
-                    >
-                      Add Comment
-                    </button>
-                  </div>
                   <div className="comment-list">
                     {photo.comments &&
                       photo.comments.length > 0 &&
                       photo.comments.map((comment) => (
                         <div key={comment._id} className="comment-item">
-                          <div className="comment-gr">
+                          <div className="comment-content-wrapper">
                             <div className="comment-author">
                               <Link to={`/users/${comment.user._id}`}>
                                 {comment.user.first_name}{" "}
                                 {comment.user.last_name}
                               </Link>
                             </div>
-                            <div className="comment-date">
-                              {new Date(comment.date_time).toLocaleString()}
+                            <div className="comment-content">
+                              {comment.comment}
                             </div>
                           </div>
-                          <div className="comment-content">
-                            {comment.comment}
+                          <div className="comment-date">
+                            {new Date(comment.date_time).toLocaleString()}
                           </div>
                         </div>
                       ))}
+                  </div>
+                  <div className="comment-input">
+                    <label>Your comment:</label>
+                    <input
+                      type="text"
+                      value={photoComments[photo._id] || ""}
+                      onChange={(e) =>
+                        handleCommentChange(photo._id, e.target.value)
+                      }
+                      placeholder="Add a comment..."
+                      className="form-field full-width"
+                    />
+                    <button
+                      className="btn comment-button"
+                      onClick={() => handleAddComment(photo._id)}
+                    >
+                      Add Comment
+                    </button>
                   </div>
                 </div>
               </div>

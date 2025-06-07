@@ -15,7 +15,6 @@ import UserDetail from "./components/UserDetail";
 import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
 import LoginRegister from "./components/LoginRegister";
-import RequireLogin from "./components/RequireLogin";
 import { API_BASE_URL } from "./config";
 
 const App = () => {
@@ -29,7 +28,6 @@ const App = () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/user/check-auth`, {
           credentials: "include",
-          method: "POST",
         });
         if (response.ok) {
           const user = await response.json();
@@ -40,12 +38,11 @@ const App = () => {
       } catch (error) {
         console.error("Auth check failed:", error);
         setCurrentUser(null);
+      } finally {
       }
     };
     checkAuth();
   }, []);
-
-  console.log("user logged:", currentUser);
 
   const handleLoginSuccess = (data) => {
     setCurrentUser(data.user);
@@ -83,7 +80,7 @@ const App = () => {
                 path="/login"
                 element={
                   currentUser ? (
-                    <Navigate to="/users" replace />
+                    <Navigate to={`/users/${currentUser._id}`} replace />
                   ) : (
                     <LoginRegister onLoginSuccess={handleLoginSuccess} />
                   )
@@ -92,33 +89,41 @@ const App = () => {
               <Route
                 path="/"
                 element={
-                  <RequireLogin user={currentUser}>
-                    <Navigate to="/users" replace />
-                  </RequireLogin>
+                  currentUser ? (
+                    <Navigate to={`/users/${currentUser._id}`} replace />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
                 }
               />
               <Route
                 path="users/:userId"
                 element={
-                  <RequireLogin user={currentUser}>
+                  currentUser ? (
                     <UserDetail />
-                  </RequireLogin>
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
                 }
               />
               <Route
                 path="photos/:userId"
                 element={
-                  <RequireLogin user={currentUser}>
+                  currentUser ? (
                     <UserPhotos photoUpdateTrigger={photoUpdateTrigger} />
-                  </RequireLogin>
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
                 }
               />
               <Route
                 path="users"
                 element={
-                  <RequireLogin user={currentUser}>
+                  currentUser ? (
                     <h1>Please select a user from the list.</h1>
-                  </RequireLogin>
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
                 }
               />
             </Routes>
