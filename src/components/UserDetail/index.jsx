@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Typography } from "@mui/material";
 import { API_BASE_URL } from "../../config";
 import "./styles.css";
-
+import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 /**
  * Define UserDetail, a React component of Project 4.
  */
@@ -11,38 +12,52 @@ function UserDetail() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/user/${userId}`, {
-      method: "GET",
-      credentials: "include",
-    })
-      .then((response) => response.json())
-      .then((data) => setUser(data))
-      .catch((error) => console.error("Error fetching user:", error));
+    const fetchUserDetail = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/user/${userId}`, {
+          credentials: "include",
+          method: "GET",
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+    if (userId) {
+      fetchUserDetail();
+    }
   }, [userId]);
-
-  if (!user) {
-    return <div>Loading...</div>;
-  }
+  console.log("user in user detail", user);
 
   return (
-    <div>
-      <h2>
-        {user.first_name} {user.last_name}
-      </h2>
-      <p>
-        <strong>Location:</strong> {user.location}
-      </p>
-      <p>
-        <strong>Occupation:</strong> {user.occupation}
-      </p>
-      <p>
-        <strong>Description:</strong> {user.description}
-      </p>
-      <p>
-        <Link className="photo-link-button" to={`/photos/${user._id}`}>
-          Xem ảnh của {user.first_name}
-        </Link>
-      </p>
+    <div className="user-detail-wrapper">
+      {user && (
+        <div className="user-detail">
+          <div className="user-name">
+            {user.first_name} {user.last_name}
+          </div>
+          <div className="user-info">
+            <div>
+              <strong> Location:</strong> {user.location || "Not specified"}
+            </div>
+            <div>
+              <strong> Occupation:</strong> {user.occupation || "Not specified"}
+            </div>
+            <div>
+              <strong> Description:</strong>{" "}
+              {user.description || "No description available"}
+            </div>
+          </div>
+          <Link to={`/photos/${user._id}`}>
+            <div className="btn photo-button">
+              <p>See Photos</p>
+            </div>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

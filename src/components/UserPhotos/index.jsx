@@ -1,50 +1,45 @@
-import React, { useEffect, useState } from "react";
-import { Typography, Divider, TextField, Button } from "@mui/material";
-import { useParams } from "react-router-dom";
-import { API_BASE_URL } from "../../config";
-import "./styles.css";
+import React, { useState, useEffect } from "react";
+import { Typography } from "@mui/material";
 
-function UserPhotos() {
-  //Hien thi anh
+import "./styles.css";
+import { Link, useParams } from "react-router-dom";
+import { API_BASE_URL } from "../../config";
+
+/**
+ * Define UserPhotos, a React component of Project 4.
+ */
+function UserPhotos({ photoUpdateTrigger }) {
   const { userId } = useParams();
   const [photos, setPhotos] = useState([]);
+  const [comment, setComment] = useState("");
+
+  const fetchPhotos = async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/photo/photoOfUser/${userId}`,
+        {
+          credentials: "include",
+        }
+      );
+      if (response.ok) {
+        const photosData = await response.json();
+        setPhotos(photosData);
+      }
+    } catch (error) {
+      console.error("Error fetching photos:", error);
+    }
+  };
 
   useEffect(() => {
-    async function fetchPhotos() {
-      try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/photo/photosOfUser/${userId}`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setPhotos(data);
-      } catch (error) {
-        console.error("Failed to fetch photos:", error);
-      }
-    }
     if (userId) {
       fetchPhotos();
     }
-  }, [userId]);
+  }, [userId, photoUpdateTrigger]);
 
-  //add comment
-  const [commentInput, setCommentInput] = useState({});
-
-  const handleCommentChange = (photoId, value) => {
-    setCommentInput((prev) => ({ ...prev, [photoId]: value }));
-  };
-
-  const handleCommentSubmit = async (photoId) => {
-    const comment = commentInput[photoId]?.trim();
+  const handleAddComment = async (photoId, comment) => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/photo/commentsOfPhoto/${photoId}`,
+        `${API_BASE_URL}/api/photo/commentOfPhoto/${photoId}`,
         {
           method: "POST",
           headers: {
@@ -54,81 +49,92 @@ function UserPhotos() {
           body: JSON.stringify({ comment }),
         }
       );
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(errText || "Failed to add comment.");
-      }
-      const updatedPhotos = await fetch(
-        `${API_BASE_URL}/api/photo/photosOfUser/${userId}`,
-        {
-          credentials: "include",
+
+      if (response.ok) {
+        // Refresh photos after adding comment
+        const updatedResponse = await fetch(
+          `${API_BASE_URL}/api/photo/photoOfUser/${userId}`,
+          {
+            credentials: "include",
+          }
+        );
+        if (updatedResponse.ok) {
+          const updatedPhotos = await updatedResponse.json();
+          setPhotos(updatedPhotos);
         }
-      ).then((response) => response.json());
-      setPhotos(updatedPhotos);
-      setCommentInput((prev) => ({ ...prev, [photoId]: "" }));
+      }
     } catch (error) {
-      console.error("Failed to add comment:", error);
+      console.error("Error adding comment:", error);
     }
   };
 
   return (
-    <div className="user-photos">
-      {photos.map((photo) => (
-        <div key={photo._id} className="photo-block">
-          <img
-            src={`${API_BASE_URL}/images/${photo.file_name}`}
-            alt="user"
-            style={{ width: "100%", maxWidth: "400px" }}
-          />
-          <Typography variant="body2" color="textSecondary">
-            {new Date(photo.date_time).toLocaleString()}
-          </Typography>
-
-          {/*ô comment*/}
-          <div className="comment-input" style={{ marginTop: "10px" }}>
-            <TextField
-              label="Add a comment"
-              variant="outlined"
-              size="small"
-              fullWidth
-              value={commentInput[photo._id] || ""}
-              onChange={(e) => handleCommentChange(photo._id, e.target.value)}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              style={{ marginTop: "5px" }}
-              onClick={() => handleCommentSubmit(photo._id)}
-            >
-              Submit
-            </Button>
-          </div>
-
-          {/*hiển thị comment*/}
-          {photo.comments && photo.comments.length > 0 && (
-            <div className="comments-section" style={{ marginTop: "10px" }}>
-              <Typography variant="subtitle1">Comments:</Typography>
-              {photo.comments.map((comment) => (
-                <div key={comment._id} className="comment">
-                  <Typography variant="body2">
-                    <strong>
-                      {comment.user?.first_name} {comment.user?.last_name}:
-                    </strong>{" "}
-                    {comment.comment}
-                  </Typography>
-                  <Typography variant="caption" color="textSecondary">
-                    {new Date(comment.date_time).toLocaleString()}
-                  </Typography>
-                  <Divider style={{ margin: "5px 0" }} />
+    <>
+      <div className="user-photo">
+        <div className="photo-grid">
+          {photos.length > 0 ? (
+            photos.map((photo) => (
+              <div key={photo._id} className="photo-item">
+                <div className="photo-image">
+                  <img
+                    src={`${API_BASE_URL}/images/${photo.file_name}`}
+                    alt={photo.file_name}
+                    style={{ width: "100%", maxWidth: "400px" }}
+                  />
                 </div>
-              ))}
-            </div>
+                <div className="photo-date">
+                  {new Date(photo.date_time).toLocaleString()}
+                </div>
+                <div className="comment-space">
+                  <div className="comment-headline">Comments:</div>
+                  <div className="comment-input">
+                    <label>Your comment:</label>
+                    <input
+                      type="text"
+                      name="comment"
+                      placeholder="Add a comment..."
+                      className="form-field full-width"
+                    />
+                    <button
+                      className="btn comment-button"
+                      onClick={(e) =>
+                        handleAddComment(photo._id, e.target.value)
+                      }
+                    >
+                      Add Comment
+                    </button>
+                  </div>
+                  <div className="comment-list">
+                    {photo.comments &&
+                      photo.comments.length > 0 &&
+                      photo.comments.map((comment) => (
+                        <div key={comment._id} className="comment-item">
+                          <div className="comment-gr">
+                            <div className="comment-author">
+                              <Link to={`/users/${comment.user._id}`}>
+                                {comment.user.first_name}{" "}
+                                {comment.user.last_name}
+                              </Link>
+                            </div>
+                            <div className="comment-date">
+                              {new Date(comment.date_time).toLocaleString()}
+                            </div>
+                          </div>
+                          <div className="comment-content">
+                            {comment.comment}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="no-photos">No photos found</div>
           )}
-
-          <Divider style={{ margin: "20px 0" }} />
         </div>
-      ))}
-    </div>
+      </div>
+    </>
   );
 }
 

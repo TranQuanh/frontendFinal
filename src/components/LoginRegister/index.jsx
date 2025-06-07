@@ -1,59 +1,20 @@
+import "./styles.scss";
 import { useState } from "react";
 import { API_BASE_URL } from "../../config";
-import "./styles.css";
-
 function LoginRegister({ onLoginSuccess }) {
+  const [registerMode, setRegisterMode] = useState(false);
   const [loginName, setLoginName] = useState("");
   const [password, setPassword] = useState("");
-  const [registerMode, setRegisterMode] = useState(false);
-  const [error, setError] = useState("");
-
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [occupation, setOccupation] = useState("");
-  const [location, setLocation] = useState("");
+  const [error, setError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [registerError, setRegisterError] = useState("");
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-    if (!loginName.trim() || !password) {
-      setError("Please enter login name or password");
-      return;
-    }
-
-    setError("");
-
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/user/admin/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            login_name: loginName,
-            password: password,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        const user = await response.json();
-        onLoginSuccess(user);
-      } else {
-        const errorText = await response.text();
-        setError(errorText || "Login failed.");
-      }
-    } catch (err) {
-      setError(err.toString());
-    }
-  };
-
-  const clearFormFields = () => {
+  const clearFromFields = () => {
     setLoginName("");
     setPassword("");
     setConfirmPassword("");
@@ -62,59 +23,98 @@ function LoginRegister({ onLoginSuccess }) {
     setLocation("");
     setDescription("");
     setOccupation("");
-    setError("");
   };
-
-  const handleRegister = async (event) => {
-    event.preventDefault();
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (
+      !loginName ||
+      !password ||
+      !confirmPassword ||
+      !firstName ||
+      !lastName ||
+      !location ||
+      !description ||
+      !occupation
+    ) {
+      setRegisterError("Please fill in all fields");
+      return;
+    }
     if (password !== confirmPassword) {
       setRegisterError("Passwords do not match");
       return;
     }
-    if (!loginName || !password || !firstName || !lastName) {
-      setRegisterError("Please fill in all required fields.");
-      return;
-    }
+    setRegisterError("");
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/user/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            login_name: loginName,
-            password: password,
-            first_name: firstName,
-            last_name: lastName,
-            description: description,
-            occupation: occupation,
-            location: location,
-          }),
-        }
-      );
-      const result = await response.json();
-      if (!response.ok) {
-        setRegisterError(result.error || "Registration failed.");
-        return;
+      const response = await fetch(`${API_BASE_URL}/api/user/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          login_name: loginName,
+          password: password,
+          first_name: firstName,
+          last_name: lastName,
+          location: location,
+          description: description,
+          occupation: occupation,
+        }),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        alert("You Register successfull");
+        clearFromFields();
+        setRegisterMode(false);
+      } else {
+        const errorData = await response.json();
+        setRegisterError(
+          errorData.error || "Registration failed. Please try again."
+        );
       }
-
-      console.log(result);
-      alert("Registration successful!");
-      clearFormFields();
     } catch (err) {
       console.log(err);
-      setRegisterError("Network error.");
+      setRegisterError("Registration failed. Please try again.");
+      clearFromFields();
+      setRegisterMode(false);
     }
   };
-
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!loginName || !password) {
+      setError("Please enter login name and password");
+      return;
+    }
+    setError("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/user/admin/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          login_name: loginName,
+          password: password,
+        }),
+      });
+      if (response.ok) {
+        const user = await response.json();
+        onLoginSuccess(user);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Login failed");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Login failed. Please try again.");
+    }
+  };
   return (
-    <div>
-      {registerMode ? (
-        <div className="login-register-container">
+    <div className="login-register-container">
+      <div className="login-register-form">
+        {registerMode ? (
           <div className="login-box">
-            <h1>REGISTER</h1>
+            <h1>Register</h1>
             <form onSubmit={handleRegister}>
               <div className="form-group">
                 <div className="form-field full-width">
@@ -126,24 +126,22 @@ function LoginRegister({ onLoginSuccess }) {
                     placeholder="Enter login name"
                   />
                 </div>
-
                 <div className="form-field full-width">
                   <label>Password:</label>
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
+                    placeholder="Enter Password"
                   />
                 </div>
-
                 <div className="form-field full-width">
-                  <label>Confirm password:</label>
+                  <label>Confirm Password:</label>
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Enter confirm password"
+                    placeholder="Confirm Password"
                   />
                 </div>
 
@@ -154,69 +152,64 @@ function LoginRegister({ onLoginSuccess }) {
                       type="text"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Enter first name"
+                      placeholder="Enter First Name"
                     />
                   </div>
-
                   <div className="form-field">
                     <label>Last name:</label>
                     <input
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Enter last name"
+                      placeholder="Enter Last Name"
                     />
                   </div>
                 </div>
-
-                <div className="form-field full-width">
+                <div className="form-field">
                   <label>Location:</label>
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Enter location"
+                    placeholder="Enter Description"
                   />
                 </div>
-
-                <div className="form-field full-width">
-                  <label>Occupation:</label>
-                  <input
-                    type="text"
-                    value={occupation}
-                    onChange={(e) => setOccupation(e.target.value)}
-                    placeholder="Enter occupation"
-                  />
-                </div>
-
-                <div className="form-field full-width">
+                <div className="form-field">
                   <label>Description:</label>
                   <input
                     type="text"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Enter description"
+                    placeholder="Enter Description"
+                  />
+                </div>
+                <div className="form-field">
+                  <label>Occupation:</label>
+                  <input
+                    type="text"
+                    value={occupation}
+                    onChange={(e) => setOccupation(e.target.value)}
+                    placeholder="Enter Occupation"
                   />
                 </div>
               </div>
-
               <div className="button-group">
                 <button type="submit">Register me</button>
                 <button type="button" onClick={() => setRegisterMode(false)}>
-                  Back to Login
+                  Already have an account? Login
                 </button>
               </div>
             </form>
-            {registerError && <div className="error">{registerError}</div>}
+            {registerError && (
+              <div className="error-message">{registerError}</div>
+            )}
           </div>
-        </div>
-      ) : (
-        <div className="login-register-container">
+        ) : (
           <div className="login-box">
-            <h1>LOGIN</h1>
+            <h1>Login</h1>
             <form onSubmit={handleLogin}>
               <div className="form-group">
-                <div className="form-field">
+                <div className="form-field full-width">
                   <label>Login name:</label>
                   <input
                     type="text"
@@ -225,18 +218,16 @@ function LoginRegister({ onLoginSuccess }) {
                     placeholder="Enter login name"
                   />
                 </div>
-
-                <div className="form-field">
+                <div className="form-field full-width">
                   <label>Password:</label>
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
+                    placeholder="Enter Password"
                   />
                 </div>
               </div>
-
               <div className="button-group">
                 <button type="submit">Login</button>
                 <button type="button" onClick={() => setRegisterMode(true)}>
@@ -244,10 +235,10 @@ function LoginRegister({ onLoginSuccess }) {
                 </button>
               </div>
             </form>
-            {error && <div className="error">{error}</div>}
+            {error && <div className="error-message">{error}</div>}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

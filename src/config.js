@@ -1,2 +1,2 @@
 // API configuration
-export const API_BASE_URL = 'http://localhost:8081'; 
+export const API_BASE_URL = "https://sp746d-8081.csb.app";

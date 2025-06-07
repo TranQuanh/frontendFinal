@@ -1,47 +1,60 @@
-import React, { useEffect, useState } from "react";
-import { Divider, List, ListItem, ListItemText } from "@mui/material";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import { API_BASE_URL } from "../../config";
-import "./styles.css";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from "@mui/material";
 
+import "./styles.css";
+import models from "../../modelData/models";
+
+/**
+ * Define UserList, a React component of Project 4.
+ */
 function UserList() {
   const [users, setUsers] = useState([]);
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   useEffect(() => {
-    async function fetchUsers() {
+    const fetchUsers = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/user/list`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        const response = await fetch(`${API_BASE_URL}/api/user/list`, {
+          credentials: "include",
+        });
+        if (response.ok) {
+          const users = await response.json();
+          setUsers(users);
         }
-        const data = await response.json();
-        setUsers(data);
       } catch (error) {
-        console.error("Failed to fetch users:", error);
+        console.error("Error fetching users:", error);
       }
-    }
-
+    };
     fetchUsers();
   }, []);
 
   return (
-    <div>
-      <List component="nav">
-        {users.map((user) => (
-          <React.Fragment key={user._id}>
-            <ListItem button component={Link} to={`/users/${user._id}`}>
-              <ListItemText primary={`${user.first_name} ${user.last_name}`} />
-            </ListItem>
-            <Divider />
-          </React.Fragment>
-        ))}
-      </List>
+    <div className="user-list">
+      {users.map((user) => (
+        <Link key={user._id} to={`/users/${user._id}`}>
+          <div
+            className={`user-item ${
+              currentPath === `/users/${user._id}` ||
+              currentPath === `/photos/${user._id}`
+                ? "active"
+                : ""
+            }`}
+          >
+            <h2 className="user-name">
+              {user.first_name} {user.last_name}
+            </h2>
+          </div>
+        </Link>
+      ))}
     </div>
   );
 }
