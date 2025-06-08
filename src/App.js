@@ -15,6 +15,7 @@ import UserDetail from "./components/UserDetail";
 import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
 import LoginRegister from "./components/LoginRegister";
+import UserUpdate from "./components/UserUpdate";
 import { API_BASE_URL } from "./config";
 
 const App = () => {
@@ -110,17 +111,40 @@ const App = () => {
                 path="photos/:userId"
                 element={
                   currentUser ? (
-                    <UserPhotos photoUpdateTrigger={photoUpdateTrigger} />
+                    <UserPhotos
+                      currentUser={currentUser}
+                      photoUpdateTrigger={photoUpdateTrigger}
+                    />
                   ) : (
                     <Navigate to="/login" replace />
                   )
                 }
               />
               <Route
-                path="users"
+                path="/users"
                 element={
                   currentUser ? (
                     <h1>Please select a user from the list.</h1>
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route
+                path="/users"
+                element={
+                  currentUser ? (
+                    <h1>Please select a user from the list.</h1>
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route
+                path="/user/update/:id"
+                element={
+                  currentUser ? (
+                    <UserUpdate />
                   ) : (
                     <Navigate to="/login" replace />
                   )

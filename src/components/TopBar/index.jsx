@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { AppBar, Toolbar, Typography } from "@mui/material";
 import { API_BASE_URL } from "../../config";
 import "./styles.css";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 
 /**
  * Define TopBar, a React component of Project 4.
  */
 function TopBar({ user, onLogout, onPhotoUpload }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -86,6 +87,12 @@ function TopBar({ user, onLogout, onPhotoUpload }) {
     }
   };
 
+  const handleEditProfile = () => {
+    if (user) {
+      navigate(`/user/update/${user._id}`);
+    }
+  };
+
   const getPathDisplay = () => {
     if (!selectedUser) return null;
 
@@ -136,6 +143,12 @@ function TopBar({ user, onLogout, onPhotoUpload }) {
                   />
                 </div>
               </div>
+              <button
+                className="edit-profile-button"
+                onClick={handleEditProfile}
+              >
+                Edit Profile
+              </button>
               <button className="logout-button" onClick={handleLogout}>
                 Logout
               </button>
