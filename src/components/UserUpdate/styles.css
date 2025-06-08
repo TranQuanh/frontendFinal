@@ -44,7 +44,13 @@
   outline: none;
   border-color: #1976d2;
 }
-
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+  font-size: 14px;
+}
 .button-group {
   display: flex;
   flex-direction: column;

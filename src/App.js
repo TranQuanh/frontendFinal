@@ -1,7 +1,6 @@
 import "./App.css";
 
 import React from "react";
-import { Typography, Paper } from "@mui/material";
 import {
   BrowserRouter as Router,
   Route,
@@ -115,16 +114,6 @@ const App = () => {
                       currentUser={currentUser}
                       photoUpdateTrigger={photoUpdateTrigger}
                     />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
-              <Route
-                path="/users"
-                element={
-                  currentUser ? (
-                    <h1>Please select a user from the list.</h1>
                   ) : (
                     <Navigate to="/login" replace />
                   )

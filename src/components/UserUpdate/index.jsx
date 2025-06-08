@@ -81,49 +81,54 @@ function UserUpdate() {
         <h2>Update Profile</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
+            <label>First Name:</label>
             <input
               type="text"
               name="first_name"
               value={formData.first_name}
               onChange={handleInputChange}
-              placeholder="First Name"
+              placeholder="Enter your first name"
               required
             />
           </div>
           <div className="form-group">
+            <label>Last Name:</label>
             <input
               type="text"
               name="last_name"
               value={formData.last_name}
               onChange={handleInputChange}
-              placeholder="Last Name"
+              placeholder="Enter your last name"
               required
             />
           </div>
           <div className="form-group">
+            <label>Location:</label>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleInputChange}
-              placeholder="Location"
+              placeholder="Enter your location"
             />
           </div>
           <div className="form-group">
+            <label>Occupation:</label>
             <input
               type="text"
               name="occupation"
               value={formData.occupation}
               onChange={handleInputChange}
-              placeholder="Occupation"
+              placeholder="Enter your occupation"
             />
           </div>
           <div className="form-group">
+            <label>Description:</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              placeholder="Description"
+              placeholder="Tell us about yourself"
               rows="3"
             />
           </div>

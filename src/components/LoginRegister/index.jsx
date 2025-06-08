@@ -75,7 +75,6 @@ function LoginRegister({ onLoginSuccess }) {
       console.log(err);
       setRegisterError("Registration failed. Please try again.");
       clearFromFields();
-      setRegisterMode(false);
     }
   };
   const handleLogin = async (e) => {

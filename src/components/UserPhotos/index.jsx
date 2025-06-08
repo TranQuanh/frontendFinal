@@ -11,7 +11,9 @@ import { API_BASE_URL } from "../../config";
 function UserPhotos({ currentUser, photoUpdateTrigger }) {
   const { userId } = useParams();
   const [photos, setPhotos] = useState([]);
-  const [photoComments, setPhotoComments] = useState({}); // Lưu comment cho từng ảnh: { photoId: commentText }
+  const [photoComments, setPhotoComments] = useState({});
+  const [editingComment, setEditingComment] = useState(null);
+  const [editCommentText, setEditCommentText] = useState("");
 
   useEffect(() => {
     console.log("Current User:", currentUser);
@@ -115,6 +117,46 @@ function UserPhotos({ currentUser, photoUpdateTrigger }) {
     }
   };
 
+  const handleEditComment = (comment) => {
+    setEditingComment(comment._id);
+    setEditCommentText(comment.comment);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingComment(null);
+    setEditCommentText("");
+  };
+
+  const handleUpdateComment = async (photoId, commentId) => {
+    if (!editCommentText.trim()) return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/photo/commentUpdate/${photoId}/${commentId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ comment: editCommentText }),
+        }
+      );
+
+      if (response.ok) {
+        setEditingComment(null);
+        setEditCommentText("");
+        await fetchPhotos();
+      } else {
+        const error = await response.json();
+        alert(error.error || "Failed to update comment");
+      }
+    } catch (error) {
+      console.error("Error updating comment:", error);
+      alert("Error updating comment");
+    }
+  };
+
   return (
     <div className="user-photo">
       <div className="photo-grid">
@@ -156,7 +198,57 @@ function UserPhotos({ currentUser, photoUpdateTrigger }) {
                             </Link>
                           </div>
                           <div className="comment-content">
-                            {comment.comment}
+                            {editingComment === comment._id ? (
+                              <div className="edit-comment-inline">
+                                <input
+                                  type="text"
+                                  value={editCommentText}
+                                  onChange={(e) =>
+                                    setEditCommentText(e.target.value)
+                                  }
+                                  className="edit-comment-input"
+                                  autoFocus
+                                />
+                                <div className="edit-buttons">
+                                  <button
+                                    className="btn update-button"
+                                    onClick={() =>
+                                      handleUpdateComment(
+                                        photo._id,
+                                        comment._id
+                                      )
+                                    }
+                                  >
+                                    Update
+                                  </button>
+                                  <button
+                                    className="btn back-button"
+                                    onClick={handleCancelEdit}
+                                  >
+                                    Back
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="comment-text-container">
+                                <span className="comment-text">
+                                  {comment.comment}
+                                </span>
+                                {currentUser &&
+                                  currentUser._id &&
+                                  comment.user &&
+                                  comment.user._id &&
+                                  currentUser._id.toString() ===
+                                    comment.user._id.toString() && (
+                                    <button
+                                      className="btn edit-comment-button"
+                                      onClick={() => handleEditComment(comment)}
+                                    >
+                                      Edit
+                                    </button>
+                                  )}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="comment-date">
